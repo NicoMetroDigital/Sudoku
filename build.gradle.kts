@@ -1,6 +1,9 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
+	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -39,24 +42,25 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-// Konfiguration des JAR-Tasks
-task<Jar>("jar") {
-	archiveBaseName.set("Sudoku")
-	archiveVersion.set("0.0.1-SNAPSHOT")
-
+// Fix for duplicates in bootJar task
+tasks.withType<BootJar> {
 	manifest {
 		attributes["Main-Class"] = "com.example.sudoku.SudokuApplicationKt"
 	}
 
-	from(sourceSets.main.get().output)
+	// Exclude duplicate files like META-INF/LICENSE.txt
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-	dependsOn(configurations.runtimeClasspath)
+	// Exclude specific files like LICENSE.txt
 	from({
-		configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-	})
+		configurations.runtimeClasspath.get().map { zipTree(it) }
+	}) {
+		exclude("META-INF/LICENSE.txt")
+		exclude("META-INF/NOTICE.txt")
+	}
 }
 
 // Standard Build Task
 tasks.build {
-	dependsOn(tasks.named("jar"))
+	dependsOn(tasks.named("bootJar"))
 }
