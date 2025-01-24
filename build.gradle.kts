@@ -26,10 +26,19 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	compileOnly("org.projectlombok:lombok")
+	"developmentOnly"("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")
+	implementation ( "org.springframework.boot:spring-boot-starter-data-jpa")
+	runtimeOnly ("com.h2database:h2")
+
+
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	implementation("org.apache.logging.log4j:log4j-api:2.19.0")
+	implementation("org.apache.logging.log4j:log4j-core:2.19.0") {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+	}
 }
 
 kotlin {
@@ -42,16 +51,22 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-// Fix for duplicates in bootJar task
+// Spring Boot Plugin Configuration
+springBoot {
+	mainClass.set("com.example.sudoku.SudokuApplicationKt")
+}
+
 tasks.withType<BootJar> {
+	// Configure the bootJar task to correctly set the Manifest attributes
 	manifest {
-		attributes["Main-Class"] = "com.example.sudoku.SudokuApplicationKt"
+		attributes["Main-Class"] = "org.springframework.boot.loader.JarLauncher" // Correct start class for Spring Boot JAR
+		attributes["Start-Class"] = "com.example.sudoku.SudokuApplicationKt" // Your Kotlin main class
 	}
 
-	// Exclude duplicate files like META-INF/LICENSE.txt
+	// Fix for duplicates
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-	// Exclude specific files like LICENSE.txt
+	// Include runtime dependencies in the JAR
 	from({
 		configurations.runtimeClasspath.get().map { zipTree(it) }
 	}) {
@@ -60,7 +75,7 @@ tasks.withType<BootJar> {
 	}
 }
 
-// Standard Build Task
+// Ensure the `bootJar` task runs as part of the build
 tasks.build {
 	dependsOn(tasks.named("bootJar"))
 }
