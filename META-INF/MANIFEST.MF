@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Main-Class: org.springframework.boot.loader.JarLauncher
-Start-Class: com.example.sudoku.SudokuApplicationKt
+Start-Class: com.example.sudoku.SudokuApplicationKt.
 Spring-Boot-Version: 3.4.1
 Spring-Boot-Classes: BOOT-INF/classes/
 Spring-Boot-Lib: BOOT-INF/lib/

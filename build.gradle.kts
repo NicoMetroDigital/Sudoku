@@ -12,7 +12,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion.set(JavaLanguageVersion.of(17))
 	}
 }
 
@@ -26,6 +26,10 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+	// ✅ H2 Datenbank-Abhängigkeit
+	runtimeOnly("com.h2database:h2")
+
 	implementation("org.apache.logging.log4j:log4j-api:2.19.0")
 	implementation("org.apache.logging.log4j:log4j-core:2.19.0") {
 		exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
@@ -47,36 +51,34 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+// ✅ Spring Boot verwaltet automatisch die Main-Class
 springBoot {
-	mainClass.set("com.example.sudoku.SudokuApplicationKt") // Deine Hauptklasse
+	mainClass.set("com.example.sudoku.SudokuApplicationKt")
 }
 
-// Konfiguration für den BootJar Task
-tasks.withType<BootJar> {
-	// Sicherstellen, dass die Manifest-Datei korrekt ist
-	manifest {
-		attributes["Main-Class"] = "org.springframework.boot.loader.JarLauncher" // Diese Klasse wird für Spring Boot benötigt
-		attributes["Start-Class"] = "com.example.sudoku.SudokuApplicationKt" // Deine Start-Klasse
-	}
+tasks.bootJar {
+	// 🛑 Entfernt die manuelle Manifest-Konfiguration (Spring Boot übernimmt das automatisch)
 
-	// Entfernen von doppelten Dateien und Sicherstellen, dass alles enthalten ist
+	// 💡 Stelle sicher, dass ein Fat JAR gebaut wird
+	archiveFileName.set("sudoku-app.jar") // Optional: Name des Outputs
+
+	// 🔄 Vermeidet doppelte Dateien im JAR
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-	// Diese Zeilen sichern alle Laufzeit-Abhängigkeiten im JAR
+	// 📦 Inkludiere alle Abhängigkeiten für das Fat JAR
 	from({
 		configurations.runtimeClasspath.get().map { zipTree(it) }
 	}) {
-		exclude("META-INF/LICENSE")
-		exclude("META-INF/NOTICE")
+		exclude("META-INF/LICENSE", "META-INF/NOTICE")
 	}
 }
 
-// Stellt sicher, dass der bootJar-Task beim Build ausgeführt wird
+// 🚀 Stellt sicher, dass `bootJar` beim Build ausgeführt wird
 tasks.build {
-	dependsOn(tasks.named("bootJar"))
+	dependsOn(tasks.bootJar)
 }
 
-// Optional: Docker Build Image (falls du Docker nutzen möchtest)
+// 🐳 Optional: Docker Build Image
 tasks.bootBuildImage {
-	imageName = "com/example/sudoku-app"  // Korrektes Format für Docker Image Namen
+	imageName.set("com/example/sudoku-app")
 }
