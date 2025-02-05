@@ -1,23 +1,52 @@
-HELP.md
+# 🏗 Build- und IDE-Dateien (bereits gut abgedeckt)
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# 💡 Spring Boot spezifische Ignorierungen
+HELP.md
+target/
+*.jar
+*.war
+*.ear
 
-### IntelliJ IDEA ###
+# 🔐 Umgebungsvariablen & Secrets
+.env
+*.env
+secrets.properties
+config/application.properties
+config/application.yml
+config/application-dev.properties
+config/application-dev.yml
+config/application-test.properties
+config/application-test.yml
+
+# 🚀 Maven spezifisch
+/.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# 🚀 Gradle spezifisch
+/.gradle/
+/build/
+/gradle/
+/!gradle/wrapper/gradle-wrapper.jar
+gradle.properties
+
+# 🗄 Datenbank-Dateien (falls du H2 oder SQLite nutzt)
+h2-db/
+database.mv.db
+database.trace.db
+*.db
+*.sqlite
+*.sqlite3
+
+# 🛠 IntelliJ IDEA (bereits enthalten)
 .idea
 *.iws
 *.iml
@@ -26,15 +55,33 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-.jar
-### VS Code ###
+# 🛠 Eclipse (bereits enthalten)
+.classpath
+.project
+.settings/
+
+# 🛠 NetBeans (bereits enthalten)
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# 🛠 Visual Studio Code (bereits enthalten)
 .vscode/
 
-### Kotlin ###
-.kotlin
+# 🛠 STS (Spring Tool Suite, bereits enthalten)
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# 🔥 Log-Dateien
+*.log
+logs/
+debug.log
+
+# 🏗 Kotlin spezifisch
+.kotlin/
+*.kts
+git lfs install
