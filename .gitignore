@@ -84,4 +84,3 @@ debug.log
 # 🏗 Kotlin spezifisch
 .kotlin/
 *.kts
-git lfs install
