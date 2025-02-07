@@ -84,3 +84,4 @@ debug.log
 # 🏗 Kotlin spezifisch
 .kotlin/
 *.kts
+sudoku-project.zip
