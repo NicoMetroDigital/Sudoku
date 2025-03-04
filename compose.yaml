@@ -1,8 +1,8 @@
-version: "3.8"
+
 services:
   backend:
     build:
-      context: .  # Verwendet das aktuelle Verzeichnis (wo sich das Backend befindet)
+      context: ./  # Stelle sicher, dass der Pfad zum Backend korrekt ist
     ports:
       - "8080:8080"
     environment:
@@ -12,5 +12,16 @@ services:
     networks:
       - app-network
 
+  frontend:
+    build:
+      context: ./  # Stelle sicher, dass der Pfad zum Frontend korrekt ist
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
 networks:
   app-network:
+    driver: bridge
