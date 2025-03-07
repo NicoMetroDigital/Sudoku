@@ -1,24 +1,34 @@
-
 services:
   backend:
     build:
-      context: ./  # Stelle sicher, dass der Pfad zum Backend korrekt ist
+      context: ./backend  # Das Backend-Verzeichnis
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Exponiert Port 8080
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=password
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: password
+    volumes:
+      - ./backend:/app  # Bindet das Backend-Verzeichnis
+    working_dir: /app  # Setzt das Arbeitsverzeichnis im Container auf /app
+    command: ["./gradlew", "bootRun"]  # Startet Spring Boot mit Gradle
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./  # Stelle sicher, dass der Pfad zum Frontend korrekt ist
+      context: ./frontend  # Das Frontend-Verzeichnis
+      dockerfile: Dockerfile.dev  # Verwendet das Dockerfile.dev für Vite
     ports:
-      - "3000:80"
+      - "5173:5173"  # Vite verwendet standardmäßig Port 5173
+    volumes:
+      - ./frontend:/app  # Bindet das lokale Frontend-Verzeichnis
+      - /app/node_modules  # Verhindert Probleme mit node_modules
+    command: ["npm", "run", "dev"]  # Startet Vite im Entwicklungsmodus
+    environment:
+      - VITE_API_URL=http://backend:8080  # API-URL für Backend
     depends_on:
-      - backend
+      - backend  # Stellt sicher, dass das Backend vor dem Frontend startet
     networks:
       - app-network
 

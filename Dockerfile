@@ -1,12 +1,16 @@
 FROM openjdk:17-jdk-slim
+
 # Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiere die gebaute JAR-Datei ins Image
-COPY build/libs/Sudoku-0.0.1-SNAPSHOT.jar /app/sudoku-app.jar
+# Kopiere den gesamten Backend-Code ins Image
+COPY . .
 
-# Exponiere den Port (nicht zwingend nötig, aber hilfreich)
+# Mache das Gradle-Skript ausführbar
+RUN chmod +x gradlew
+
+# Exponiere den Port (optional, aber hilfreich)
 EXPOSE 8080
 
-# Setze den Container-Startbefehl
-ENTRYPOINT ["java", "-jar", "/app/sudoku-app.jar"]
+# Starte das Backend mit Gradle
+ENTRYPOINT ["./gradlew", "bootRun"]
