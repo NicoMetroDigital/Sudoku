@@ -1,16 +1,16 @@
+# Dockerfile für das Backend
+
+# Verwende das OpenJDK-Image als Basis
 FROM openjdk:17-jdk-slim
 
 # Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiere den gesamten Backend-Code ins Image
-COPY . .
+# Kopiere alle benötigten Dateien (auch settings.gradle) in das Arbeitsverzeichnis im Container
+COPY gradlew build.gradle settings.gradle /app/
 
-# Mache das Gradle-Skript ausführbar
-RUN chmod +x gradlew
+# Kopiere den gesamten Backend-Code
+COPY src /app/src
 
-# Exponiere den Port (optional, aber hilfreich)
-EXPOSE 8080
-
-# Starte das Backend mit Gradle
-ENTRYPOINT ["./gradlew", "bootRun"]
+# Setze den Befehl zum Starten des Backends
+CMD ["./gradlew", "bootRun"]

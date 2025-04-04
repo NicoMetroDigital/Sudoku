@@ -1,16 +1,20 @@
 package com.example.sudoku.service
 
+import com.example.sudoku.model.Highscore
+import com.example.sudoku.repository.HighscoreRepository
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
-class SudokuService {
+class SudokuService(
+    private val highscoreRepository: HighscoreRepository
+) {
 
     fun generateSudoku(difficulty: String): List<List<Int>> {
-        val fullGrid = MutableList(9) { MutableList(9) { 0 } } // Richtiger Typ
-        solve(fullGrid) // Erst ein vollständiges Sudoku erzeugen
-        removeNumbers(fullGrid, difficulty) // Zahlen entfernen, um Schwierigkeit anzupassen
-        return fullGrid.map { it.toList() } // Unveränderliche Liste zurückgeben
+        val fullGrid = MutableList(9) { MutableList(9) { 0 } }
+        solve(fullGrid)
+        removeNumbers(fullGrid, difficulty)
+        return fullGrid.map { it.toList() }
     }
 
     private fun removeNumbers(grid: MutableList<MutableList<Int>>, difficulty: String) {
@@ -18,7 +22,7 @@ class SudokuService {
             "easy" -> 30
             "medium" -> 40
             "hard" -> 50
-            else -> 40 // Standard auf "Medium"
+            else -> 40
         }
         repeat(removeCount) {
             var row: Int
@@ -26,7 +30,7 @@ class SudokuService {
             do {
                 row = Random.nextInt(9)
                 col = Random.nextInt(9)
-            } while (grid[row][col] == 0) // Stelle sicher, dass nicht mehrfach dieselbe Zahl entfernt wird
+            } while (grid[row][col] == 0)
             grid[row][col] = 0
         }
     }
@@ -44,7 +48,7 @@ class SudokuService {
                         if (isValid(grid, row, col, num)) {
                             grid[row][col] = num
                             if (solve(grid)) return true
-                            grid[row][col] = 0 // Backtracking
+                            grid[row][col] = 0
                         }
                     }
                     return false
@@ -66,5 +70,17 @@ class SudokuService {
             }
         }
         return true
+    }
+
+    // 🔥 Highscore speichern
+    fun saveHighscore(playerName: String, timeInSeconds: Int) {
+        val highscore = Highscore(playerName = playerName, timeInSeconds = timeInSeconds)
+        highscoreRepository.save(highscore)
+    }
+
+    // 📊 Highscores abrufen
+    fun getHighscores(): List<Highscore> {
+        return highscoreRepository.findAll()
+            .sortedBy { it.timeInSeconds } // Optional: nach Zeit sortieren
     }
 }
