@@ -7,7 +7,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Kopiere alle benötigten Dateien (auch settings.gradle) in das Arbeitsverzeichnis im Container
-COPY gradlew build.gradle settings.gradle /app/
+COPY gradlew build.gradle.kts settings.gradle.kts /app/
 
 # Kopiere den gesamten Backend-Code
 COPY src /app/src

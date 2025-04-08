@@ -15,7 +15,7 @@ services:
 
   backend:
     build:
-      context: .  # Hier das Root-Verzeichnis des Projekts (Sudoku)
+      context: .  # Das ganze Sudoku-Projekt
     ports:
       - "8080:8080"
     environment:
@@ -23,28 +23,11 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
     volumes:
-      - ./backend:/app  # Der Ordner, der das Backend enthält
+      - .:/app  # Ganzer Projektordner wird eingebunden, damit gradlew gefunden wird
     working_dir: /app
     command: ["./gradlew", "bootRun"]
     depends_on:
       - db
-    networks:
-      - app-network
-
-  frontend:
-    build:
-      context: ./frontend  # Ordner, der das Frontend enthält
-      dockerfile: Dockerfile.dev  # Dockerfile für Dev-Umgebung
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app  # Ordner für das Frontend
-      - /app/node_modules
-    command: ["npm", "run", "dev"]
-    environment:
-      - VITE_API_URL=http://backend:8080
-    depends_on:
-      - backend
     networks:
       - app-network
 
