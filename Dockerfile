@@ -1,16 +1,20 @@
-# Dockerfile für das Backend
+# Stage 1: Build mit Gradle Wrapper
+FROM gradle:7.4.2-jdk17 AS builder
 
-# Verwende das OpenJDK-Image als Basis
-FROM openjdk:17-jdk-slim
-
-# Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiere alle benötigten Dateien (auch settings.gradle) in das Arbeitsverzeichnis im Container
-COPY gradlew build.gradle.kts settings.gradle.kts /app/
-
-# Kopiere den gesamten Backend-Code
+COPY gradlew gradlew.bat build.gradle.kts settings.gradle.kts /app/
+COPY gradle /app/gradle
 COPY src /app/src
 
-# Setze den Befehl zum Starten des Backends
-CMD ["./gradlew", "bootRun"]
+RUN chmod +x ./gradlew && ./gradlew clean build --no-daemon
+
+# Stage 2: Runtime - nur das fertige .jar verwenden
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]
