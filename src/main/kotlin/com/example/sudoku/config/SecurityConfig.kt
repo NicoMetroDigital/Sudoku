@@ -2,34 +2,42 @@ package com.example.sudoku.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.web.servlet.config.annotation.CorsRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class SecurityConfig : WebMvcConfigurer {
+class SecurityConfig {
 
-    // CORS-Konfiguration
-    override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**") // Alle Endpoints erlauben
-            .allowedOrigins("http://localhost:5173") // Dein Frontend-Origin zulassen
-            .allowedMethods("GET", "POST", "PUT", "DELETE") // Erlaubte HTTP-Methoden
-            .allowedHeaders("*") // Erlaubte Header
-            .allowCredentials(true) // Cookies/Anmeldeinformationen zulassen (falls benötigt)
+    @Bean
+    fun corsFilter(): CorsFilter {
+        val config = CorsConfiguration().apply {
+            allowedOrigins = listOf(
+                "http://localhost:5173",
+                "http://0.0.0.0:5173",
+                "http://127.0.0.1:5173"
+            )
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+            exposedHeaders = listOf("Authorization", "Content-Type") // Falls du Tokens schickst
+        }
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return CorsFilter(source)
     }
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .cors {} // Aktiviert CORS
-            .csrf { it.disable() } // Deaktiviert CSRF, da du eine API hast, die keine Sessions benötigt
-            .authorizeHttpRequests { auth ->
-                auth.requestMatchers("/api/**", "/sudoku/**").permitAll() // Endpoints öffentlich zugänglich
-                    .anyRequest().authenticated() // Andere Endpoints erfordern Authentifizierung
+            .csrf { it.disable() } // CSRF deaktivieren (für APIs okay)
+            .cors { } // ⬅️ Aktiviert den CorsFilter oben
+            .authorizeHttpRequests {
+                it.anyRequest().permitAll() // Alles erlauben – du kannst später feiner einstellen
             }
-            .formLogin { it.disable() } // Deaktiviert das Login-Formular (falls nicht benötigt)
-            .httpBasic { it.disable() } // Deaktiviert Basic Auth (optional)
 
         return http.build()
     }
